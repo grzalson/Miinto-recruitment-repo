@@ -2,48 +2,62 @@
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using MIINTOrecruitment.Models;
-
+using OpenQA.Selenium.DevTools.V120.WebAuthn;
+using System.Text.Json;
 
 namespace MIINTOrecruitment.Services
 {
-    public interface IGoogleSheetsService
-    {
-        public Task AppendDataToSheet(Order order);
-    }
+    
     public class GoogleSheetsService : IGoogleSheetsService
     {
         private readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
-        private readonly string AplicationName = "MyApp";
-        private readonly string SpreadsheetId = "Spreadsheet ID here";
-        private readonly string sheet = "Sheet name here";
-        private  SheetsService service;
-        public GoogleSheetsService()
+        private readonly string _AplicationName = "MyApp";
+        private readonly string _SpreadsheetId;
+        private readonly string _sheet = "Arkusz1";
+        private readonly GoogleCredentials _googleCredentials;
+        private SheetsService service;
+        public GoogleSheetsService(IConfiguration configuration)
         {
-            GoogleCredential credential;
-            using (var stream = new FileStream(@"Resources/credentials.json", FileMode.Open, FileAccess.Read))
+            _SpreadsheetId = configuration["SpreadsheetId"];
+
+            _googleCredentials = new GoogleCredentials()
             {
-                credential = GoogleCredential.FromStream(stream).CreateScoped(Scopes);
-            }
+                auth_uri = configuration["GoogleCredentials:auth_uri"],
+                type = configuration["GoogleCredentials:type"],
+                project_id = configuration["GoogleCredentials:project_id"],
+                private_key_id = configuration["GoogleCredentials:private_key_id"],
+                private_key = configuration["GoogleCredentials:private_key"],
+                client_email = configuration["GoogleCredentials:client_email"],
+                client_id = configuration["GoogleCredentials:client_id"],
+                token_uri = configuration["GoogleCredentials:token_uri"],
+                auth_provider_x509_cert_url = configuration["GoogleCredentials:auth_provider_x509_cert_url"],
+                client_x509_cert_url = configuration["GoogleCredentials:client_x509_cert_url"],
+                universe_domain = configuration["universe_domain"]
+            };
+
+            GoogleCredential credential = GoogleCredential.FromJson(JsonSerializer.Serialize(_googleCredentials));
+            
             service = new SheetsService(new Google.Apis.Services.BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
-                ApplicationName = AplicationName,
+                ApplicationName = _AplicationName,
             });
         }
         public async Task AppendDataToSheet(Order order)
         {
-            var range = $"{sheet}!A:C"; 
+            var range = $"{_sheet}!A:C"; 
             var valueRange = new ValueRange();
           
             var objectList = new List<object>() { order.order_id, order.order_date, order.order_status };
             valueRange.Values = new List<IList<object>> { objectList };
 
-            var appendRequest = service.Spreadsheets.Values.Append(valueRange, SpreadsheetId, range);
+            var appendRequest = service.Spreadsheets.Values.Append(valueRange, _SpreadsheetId, range);
             appendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.USERENTERED;
             appendRequest.InsertDataOption = SpreadsheetsResource.ValuesResource.AppendRequest.InsertDataOptionEnum.INSERTROWS;
 
-            var response = await appendRequest.ExecuteAsync();
+            await appendRequest.ExecuteAsync();
 
         }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MIINTOrecruitment.Models;
 using MIINTOrecruitment.Services;
 
 namespace MIINTOrecruitment.Controllers
@@ -19,7 +20,7 @@ namespace MIINTOrecruitment.Controllers
         }
 
         [HttpGet("getOrder/{orderId}")]
-        public async Task<IActionResult> GetOrder(int orderId)
+        public async Task<ActionResult<Order>> GetOrder(int orderId)
         {
             var order = await _orderService.GetOrderAsync(orderId);
             if (order == null)
