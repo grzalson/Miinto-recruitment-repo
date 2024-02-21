@@ -1,13 +1,13 @@
 ﻿
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium;
 using MIINTOrecruitment.Models;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExtras.WaitHelpers;
 
 namespace MIINTOrecruitment.Services
 {
-    
+
     public class FormSubmissionService : IFormSubmissionService
     {
         private readonly string filePath = @"Resources\index.html";

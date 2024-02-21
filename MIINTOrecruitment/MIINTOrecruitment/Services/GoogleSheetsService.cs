@@ -2,12 +2,11 @@
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using MIINTOrecruitment.Models;
-using OpenQA.Selenium.DevTools.V120.WebAuthn;
 using System.Text.Json;
 
 namespace MIINTOrecruitment.Services
 {
-    
+
     public class GoogleSheetsService : IGoogleSheetsService
     {
         private readonly string[] Scopes = { SheetsService.Scope.Spreadsheets };
@@ -36,7 +35,7 @@ namespace MIINTOrecruitment.Services
             };
 
             GoogleCredential credential = GoogleCredential.FromJson(JsonSerializer.Serialize(_googleCredentials));
-            
+
             service = new SheetsService(new Google.Apis.Services.BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
@@ -45,9 +44,9 @@ namespace MIINTOrecruitment.Services
         }
         public async Task AppendDataToSheet(Order order)
         {
-            var range = $"{_sheet}!A:C"; 
+            var range = $"{_sheet}!A:C";
             var valueRange = new ValueRange();
-          
+
             var objectList = new List<object>() { order.order_id, order.order_date, order.order_status };
             valueRange.Values = new List<IList<object>> { objectList };
 
